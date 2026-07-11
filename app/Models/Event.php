@@ -2,20 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 
 class Event extends Model
 {
-    use HasFactory;
+     use HasFactory;
 
-    protected $fillable = [
-        'nama',
-        'deskripsi',
-        'tanggal',
-        'lokasi',
-        'gambar',
-    ];
+    protected $guarded = ['id'];
 
     protected $casts = [
         'tanggal' => 'datetime',
@@ -39,5 +35,41 @@ class Event extends Model
     {
         return $this->hasMany(Order::class);
     }
+    public function getStatusAttribute() 
+    {
+        $hour_diff = $this->getHourDiff();
+        if($hour_diff < 0) return "UPCOMING";
+        if($hour_diff <= 3) return "ONGOING";
+        return "COMPLETED";
+    }
+    public function hasSales() : bool 
+    {
+        return $this->has("orders");
+    }
+    public function scopeUpcoming(Builder $query) 
+    {
+        $curr = Carbon::now();
+        return $query->where("tanggal_waktu", "<", $curr->toString());
+    }
+    public function scopeOngoing(Builder $query) 
+    {
+        $from = Carbon::now();
+        $next = $from->addHours(3);
+        return $query->where("tanggal_waktu", ">=", $from->toString())
+        ->where("tanggal_waktu", "<=", $next->toString());
+    }
+    public function scopeCompleted(Builder $query)
+    {
+        $from = Carbon::now();
+        $next = $from->addHours(3);
+        return $query->where("tanggal_waktu", ">", $next->toString());
+    }
+    private function getHourDiff() 
+    {
+        $from = Carbon::parse($this->tanggal_waktu);
+        $curr = Carbon::now();
 
+        $hour_diff = $curr->diffInHours($from);
+        return $hour_diff;
+    }
 }

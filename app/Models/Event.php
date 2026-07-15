@@ -45,7 +45,7 @@ class Event extends Model
     }
     public function hasSales() : bool
     {
-        return $this->has("orders");
+        return $this->orders()->exists();
     }
     public function scopeUpcoming(Builder $query)
     {
@@ -71,10 +71,12 @@ class Event extends Model
         $img_path = $this->gambar;
 
         $is_url = filter_var($img_path, FILTER_VALIDATE_URL);
-        if ($is_url == false) return $def_path;
+        if ($is_url == false) 
+            return $def_path;
 
         $is_exists = Storage::exists($img_path);
-        if ($is_exists == false) return $def_path;
+        if ($is_exists == false) 
+            return $def_path;
 
         return $img_path;
     }

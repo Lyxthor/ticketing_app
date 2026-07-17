@@ -108,7 +108,7 @@
                     name="lokasi_id" class="select select-bordered w-full">
                         @forelse($locations as $index => $lokasi)
                         <option value="{{ $lokasi->id }}">
-                            {{ $lokasi->nama_lokasi }}
+                            {{ $lokasi?->nama_lokasi ?? ' ' }}
                         </option>
                         @empty
                         @endforelse

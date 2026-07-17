@@ -28,7 +28,7 @@
                     @endforelse
                 </select>
                 <select name="sort" class="select join-item w-1/12">
-                    <option value="'">
+                    <option value="">
                         order by
                     </option>
                     <option value="asc" @selected(request()->query('sort')=='asc')>
@@ -36,6 +36,20 @@
                     </option>
                     <option value="desc" @selected(request()->query('sort')=='desc')>
                         desc
+                    </option>
+                </select>
+                <select name="pagination" class="select join-item w-1/12">
+                    <option value="1">
+                        1
+                    </option>
+                    <option value="2">
+                        2
+                    </option>
+                    <option value="3">
+                        3
+                    </option>
+                    <option value="4">
+                        4
                     </option>
                 </select>
                 <input 
@@ -76,7 +90,7 @@
                         <td>{{ $event->judul }}</td>
                         <td>{{ $event->kategori->nama }}</td>
                         <td>{{ $event->tanggal_waktu->format("d M Y, H:i") }}</td>
-                        <td>{{ $event->lokasi->nama_lokasi }}</td>
+                        <td>{{ $event->lokasi?->nama_lokasi ?? ' ' }}</td>
                         <td>
                             @php
                                 $status = $event->getStatusAttribute();
@@ -126,6 +140,7 @@
                 </tbody>
             </table>
         </div>
+        
         <div class="mt-4">
             {!! $events->appends(request()->except('page'))->links() !!}
         </div>

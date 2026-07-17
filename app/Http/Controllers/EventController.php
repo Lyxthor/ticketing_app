@@ -22,6 +22,7 @@ class EventController extends Controller
     {
         $order = $request->query('sort', 'asc');
         $kategori_id = $request->query('kategori_id');
+        $paginate = $request->query('pagination');
         $events = \App\Models\Event::has('tikets');
 
         if ($kategori_id) {
@@ -34,10 +35,13 @@ class EventController extends Controller
         $search = $request->query('search');
         if ($search) {
             $search = '%'.$search.'%';
-            $events = $events->where('judul', 'LIKE', $search);
+            $events = $events->where('judul', 'LIKE', $search)
+            ->orWhereHas('lokasi', function($query) use($search) {
+                return $query->where('nama_lokasi', 'LIKE', $search);
+            });
         }
         $events = $events->orderBy('tanggal_waktu', $order)
-        ->paginate(2);
+        ->paginate($paginate ?? 1);
         $categories = Kategori::select(['id', 'nama'])->get();
         return view('pages.admin.events.index', compact('events', 'categories'));
     }

@@ -3,20 +3,17 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Kategori;
 use App\Models\Event;
 use App\Http\Controllers\KategoriController;
 
-Route::get('/', function () {
-    return view('home', [
-        'categories' => Kategori::all(),
-        'events' => Event::all()
-    ]);
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
-
+Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -32,6 +29,9 @@ Route::prefix('admin')->name('categories.')->middleware(['auth', 'verified'])->g
     Route::post('/categories', [CategoryController::class, 'store'])->name('store');
     Route::put('/categories/{id}', [CategoryController::class, 'update'])->name('update');
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('destroy');
+});
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(function () {
+    Route::resource('events', EventController::class)->parameter('events', 'id');
 });
 
 require __DIR__.'/auth.php';

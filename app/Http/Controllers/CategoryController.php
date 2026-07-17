@@ -13,7 +13,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string|max:255|unique:kategoris,nama',
+            'nama' => 'required|string|max:255|unique:kategori,nama',
         ]);
 
         Kategori::create([

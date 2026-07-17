@@ -45,6 +45,10 @@
                 <li class="{{ request()->routeIs('kategori.*') ? 'bg-base-300 rounded' : '' }}">
                     <a href="{{ route('kategori.index') }}">Manajemen Kategori</a>
                 </li>
+
+                <li class="{{ request()->routeIs('admin.events.*') ? 'bg-base-300 rounded' : '' }}">
+                    <a href="{{ route('admin.events.index') }}">Manajemen Event</a>
+                </li>
             </ul>
             <form method="POST" action="{{ route('logout') }}">
         @csrf

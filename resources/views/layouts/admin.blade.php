@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Admin Dashboard')</title>
-
+    
+    @vite(['resources/js/app.js'])
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> --}}
 </head>
 <body class="bg-gray-50">
     <div class="min-h-screen flex">
@@ -36,6 +37,16 @@
                                 <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 3a3 3 0 1 0 6 0a3 3 0 1 0-6 0" />
                             </svg>
                             Manajemen Kategori
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('admin.events.index') }}"
+                           class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors {{ request()->routeIs('admin.event.*') ? 'bg-blue-50 text-blue-600' : '' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="w-5 h-5 mr-3">
+                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 3a3 3 0 1 0 6 0a3 3 0 1 0-6 0" />
+                            </svg>
+                            Manajemen Event
                         </a>
                     </li>
                 </ul>
@@ -90,7 +101,7 @@
     </div>
 
     <!-- Success Toast Container -->
-    @if(session('success'))
+    {{-- @if(session('success'))
         <div id="successToast" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
             {{ session('success') }}
         </div>
@@ -104,6 +115,45 @@
                 }
             }, 3000);
         </script>
-    @endif
+    @endif --}}
+    @if(session('success') || session('error') || session('info') || session('warning'))
+    <div id="flash-toast" class="toast fixed top-4 right-4 z-50" aria-live="polite">
+      @if(session('success'))
+        <div class="alert alert-success shadow-lg">
+          <div><span>{{ session('success') }}</span></div>
+        </div>
+      @endif
+
+      @if(session('error'))
+        <div class="alert alert-error shadow-lg mt-2">
+          <div><span>{{ session('error') }}</span></div>
+        </div>
+      @endif
+
+      @if(session('info'))
+        <div class="alert alert-info shadow-lg mt-2">
+          <div><span>{{ session('info') }}</span></div>
+        </div>
+      @endif
+
+       @if(session('warning'))
+        <div class="alert alert-warning shadow-lg mt-2">
+          <div><span>{{ session('warning') }}</span></div>
+        </div>
+      @endif
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const t = document.getElementById('flash-toast');
+        if (!t) return;
+        // hide after 4s
+        setTimeout(() => {
+          t.classList.add('opacity-0', 'transition', 'duration-500');
+          setTimeout(() => t.remove(), 600);
+        }, 4000);
+      });
+    </script>
+  @endif
 </body>
 </html>

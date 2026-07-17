@@ -3,8 +3,11 @@
     'active' => false,
 ])
 
-<span
-    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-        {{ $active ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700' }}">
-    {{ $label }}
-</span>
+@php
+$classes = 'px-3 py-1 rounded-full text-sm border transition';
+$classes .= $active
+    ? ' bg-blue-900 text-white border-blue-900'
+    : ' bg-white text-blue-900 border-blue-900 hover:bg-blue-50';
+@endphp
+
+<span {{ $attributes->merge(['class' => $classes]) }}>{{ $label }}</span>

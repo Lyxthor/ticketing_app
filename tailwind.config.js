@@ -17,5 +17,13 @@ export default {
         },
     },
 
-    plugins: [forms],
+    plugins: [
+        forms,
+        require('daisyui')
+    ],
+    daisyui: {
+        themes: ["light"],
+        darkTheme: "light", // Paksa darkTheme diarahkan ke tema 'light'
+    },
 };
+

@@ -18,16 +18,20 @@
         ? \Carbon\Carbon::parse($date)->locale('id')->translatedFormat('d F Y, H:i')
         : 'Tanggal tidak tersedia';
 
-    // Safe image URL: use external URL if provided, otherwise use asset (storage path)
-    $imageUrl = $image && filter_var($image, FILTER_VALIDATE_URL)
-        ? $image
-        : asset('storage/' . ltrim($image ?: 'konser.jpg', '/'));
+    // Safe image URL: use external URL if provided, otherwise use storage URL
+    if ($image && filter_var($image, FILTER_VALIDATE_URL)) {
+        $imageUrl = $image;
+    } else {
+        // Use provided image if it exists and file is found, otherwise use default
+        $imageName = (!empty($image) && file_exists(public_path('storage/' . $image))) ? $image : 'konser.jpg';
+        $imageUrl = asset('storage/' . $imageName);
+    }
 @endphp
 
 <a href="{{ $href ?? '#' }}" class="block">
   <div class="card bg-base-100 h-96 shadow-sm hover:shadow-md transition-shadow duration-300">
       <figure>
-          <img src="{{ $imageUrl }}" alt="{{ $title }}" class="w-full h-48 object-cover" />
+          <img src="{{ $imageUrl }}" alt="{{ $title }}" class="w-full h-48 object-cover" loading="lazy" />
       </figure>
 
       <div class="card-body">

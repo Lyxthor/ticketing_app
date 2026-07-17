@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+@plugin "daisyui" {
+  themes: light --default; /* Forces the light theme and disables dark theme */
+}

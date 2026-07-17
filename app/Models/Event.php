@@ -15,7 +15,7 @@ class Event extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'tanggal' => 'datetime',
+        'tanggal_waktu' => 'datetime',
     ];
 
     public function tikets()
@@ -36,13 +36,40 @@ class Event extends Model
     {
         return $this->hasMany(Order::class);
     }
-    public function getStatusAttribute()
+    public function scopeRelated(Builder $query, Event $current_event, int $limit)
     {
-        $hour_diff = $this->getHourDiff();
-        if($hour_diff < 0) return "UPCOMING";
-        if($hour_diff <= 3) return "ONGOING";
-        return "COMPLETED";
+        return $query->where('kategori_id', $current_event->kategori_id)
+        ->where('id', '!=', $current_event->id)
+        ->upcoming()
+        ->take($limit);
     }
+    public function getStatusAttribute()
+{
+    $hour_diff = $this->getHourDiff();
+    print($hour_diff);
+    // Jika waktu acara masih di masa depan (selisih > 0)
+    if ($hour_diff > 0) {
+        return "UPCOMING";
+    }
+
+    // Jika acara sedang berlangsung (sudah mulai, tapi belum lewat 3 jam)
+    // Nilainya negatif/nol, misal: 0, -1, -2, -3
+    if ($hour_diff >= -3) {
+        return "ONGOING";
+    }
+
+    // Jika sudah lewat lebih dari 3 jam (misal: -4, -5)
+    return "COMPLETED";
+}
+
+private function getHourDiff()
+{
+    $from = Carbon::parse($this->tanggal_waktu);
+    $curr = Carbon::now('Asia/Jakarta');
+
+    // Tambahkan parameter false agar menghasilkan angka signed (+/-)
+    return $curr->diffInHours($from, false);
+}
     public function hasSales() : bool
     {
         return $this->orders()->exists();
@@ -50,7 +77,7 @@ class Event extends Model
     public function scopeUpcoming(Builder $query)
     {
         $curr = Carbon::now();
-        return $query->where("tanggal_waktu", "<", $curr->toString());
+        return $query->where("tanggal_waktu", ">=", $curr->toString());
     }
     public function scopeOngoing(Builder $query)
     {
@@ -67,25 +94,16 @@ class Event extends Model
     }
     public function getImageUrlAttribute()
     {
-        $def_path = 'konser.jpg';
+        $def_path = asset('storage/konser.jpg');
         $img_path = $this->gambar;
-
+        
         $is_url = filter_var($img_path, FILTER_VALIDATE_URL);
-        if ($is_url == false) 
-            return $def_path;
-
-        $is_exists = Storage::exists($img_path);
-        if ($is_exists == false) 
-            return $def_path;
-
-        return $img_path;
+        if ($is_url) 
+            return $img_path;
+        $is_exists = $img_path && Storage::disk('public')->exists($img_path);
+        if ($is_exists) 
+            return asset('storage/'.$img_path);
+        return $def_path;
     }
-    private function getHourDiff()
-    {
-        $from = Carbon::parse($this->tanggal_waktu);
-        $curr = Carbon::now();
-
-        $hour_diff = $curr->diffInHours($from);
-        return $hour_diff;
-    }
+    
 }

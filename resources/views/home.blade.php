@@ -1,4 +1,4 @@
-<x-layouts.app>
+<x-app-layout>
     <div class="hero bg-blue-900 min-h-screen">
         <div class="hero-content text-center text-white">
             <div class="max-w-4xl">
@@ -28,8 +28,8 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             @foreach($events as $event)
                 <x-event-card :title="$event->judul" :date="$event->tanggal_waktu" :location="$event->lokasi"
-                    :price="$event->tikets_min_harga" :image="$event->gambar" :href="route('home')" />
+                    :price="$event->tikets_min_harga" :image="$event->gambar" :href="route('events.show', $event)" />
             @endforeach
         </div>
     </section>
-</x-layouts.app>
+</x-app-layout>

@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Request;
+use Illuminate\Contracts\Validation\Validator;
 use Override;
 
 class EventFormRequest extends FormRequest
@@ -21,13 +23,14 @@ class EventFormRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+    public function rules(Request $request): array
     {
+        
         return [
             'judul'=>['required','string','max:255'],
             'deskripsi'=>['required', 'string'],
             'lokasi'=>['required','string','max:255'],
-            'kategori_id'=>['required', 'exists:kategoris.id'],
+            'kategori_id'=>['required', 'exists:kategoris,id'],
             'tanggal_waktu'=>['required', 'date', 'after:now'],
             'gambar'=>['nullable','image','mimes:jpg,jpeg,png','max:2048'],
 
@@ -79,4 +82,9 @@ class EventFormRequest extends FormRequest
             'tikets.*.stok.min' => 'Stok tiket tidak boleh minus.',
         ];
     }
+    // protected function failedValidation(Validator $validator)
+    // {
+    //     // Dump the errors directly to your screen
+    //     dd($validator->errors()->all());
+    // }
 }

@@ -17,7 +17,10 @@ class Event extends Model
     protected $casts = [
         'tanggal_waktu' => 'datetime',
     ];
-
+    public function lokasi() 
+    {
+        return $this->belongsTo(Lokasi::class, 'lokasi_id', 'id');
+    }
     public function tikets()
     {
         return $this->hasMany(Tiket::class);
@@ -46,7 +49,6 @@ class Event extends Model
     public function getStatusAttribute()
 {
     $hour_diff = $this->getHourDiff();
-    print($hour_diff);
     // Jika waktu acara masih di masa depan (selisih > 0)
     if ($hour_diff > 0) {
         return "UPCOMING";

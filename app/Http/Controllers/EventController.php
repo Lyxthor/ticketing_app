@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EventFormRequest;
 use App\Models\Event;
 use App\Models\Kategori;
+use App\Models\Lokasi;
 use App\Models\Tiket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -33,8 +34,7 @@ class EventController extends Controller
         $search = $request->query('search');
         if ($search) {
             $search = '%'.$search.'%';
-            $events = $events->where('judul', 'LIKE', $search)
-            ->orWhere('lokasi', 'LIKE', $search);
+            $events = $events->where('judul', 'LIKE', $search);
         }
         $events = $events->orderBy('tanggal_waktu', $order)
         ->paginate(2);
@@ -48,7 +48,8 @@ class EventController extends Controller
     public function create()
     {
         $categories = Kategori::all('id', 'nama');
-        return view('pages.admin.events.create', compact('categories'));
+        $locations = Lokasi::select(['id', 'nama_lokasi'])->where('aktif', true)->get();
+        return view('pages.admin.events.create', compact('categories', 'locations'));
     }
     public function store(EventFormRequest $request)
     {
@@ -85,12 +86,14 @@ class EventController extends Controller
             $query->withCount('detailOrders as has_sales'); // <-- Tambahkan titik koma di sini
         }])->find($id);
         $categories = Kategori::select(['id', 'nama'])->get();
+        $locations = Lokasi::select(['id', 'nama_lokasi'])->where('aktif', true)->get();
+
         $has_sales = $event->hasSales();
         if($has_sales)
             session()->flash('warning', 'Event ini sudah memiliki penjualan tiket. Beberapa field mungkin tidak dapat diubah.');
         // dd($event->tikets);
         if ($event) 
-            return view('pages.admin.events.edit', compact('event', 'categories', 'has_sales'));
+            return view('pages.admin.events.edit', compact('event', 'categories', 'locations', 'has_sales'));
         return back()->with('error', 'Event not found.');
     }
     /**
@@ -119,24 +122,27 @@ class EventController extends Controller
                 $event_data = Arr::except($validated_data, ['tikets']);
                 $event_data['gambar'] = $img_url;
                 $event->update($event_data);
+
                 $input_ids = collect($request->tikets)->pluck('id')->filter()->toArray();
+                if (!$event->hasSales()) {
+                    $to_delete_tikets = $event->tikets()->whereNotIn('id', $input_ids)->get();
+                    foreach ($to_delete_tikets as $tiket) 
+                        $tiket->delete();
+                }
                 $tikets_data = $request->tikets;
                 foreach ($tikets_data as $index => $tiket) {
                     $tiket['id'] = $tiket['id'] ?? null;
                     $tiket['event_id'] = $event->id;
-                    Tiket::updateOrInsert($tiket);
+                    Tiket::updateOrCreate($tiket);
                 }
-
-                if (!$event->hasSales()) {
-                    $to_delete_tikets = $event->tikets()->whereNotIn('id', $input_ids);
-                    foreach ($to_delete_tikets as $tiket) 
-                        $tiket->delete();
-                }
+                
+                
+                
             });
             return redirect()->route('admin.events.index')->with('Success', 'Updated');
         }
         catch(Throwable $e) {
-            // dd($e->getMessage());
+            dd($e->getMessage());
 
             return back()->with('error', 'Server error.');
         }
@@ -155,7 +161,7 @@ class EventController extends Controller
      */
     public function show(string $id)
     {
-        $event = Event::with('kategori', 'tikets')->find($id);
+        $event = Event::with('kategori', 'tikets', 'lokasi')->find($id);
         if ($event) {
             $related_events = Event::related($event, 4)->get();
             return view('events.show', compact('event', 'related_events'));

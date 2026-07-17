@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Models\Kategori;
 use App\Models\Event;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\LokasiController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -32,6 +33,7 @@ Route::prefix('admin')->name('categories.')->middleware(['auth', 'verified'])->g
 });
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(function () {
     Route::resource('events', EventController::class)->parameter('events', 'id');
+    Route::resource('lokasi', LokasiController::class)->parameter('lokasi', 'id');
 });
 
 require __DIR__.'/auth.php';

@@ -103,21 +103,16 @@
                         <span class="text-sm font-medium">Lokasi</span>
                         <span class="text-error">*</span>
                     </label>
-                    <input 
-                    name="lokasi" 
-                    value="{{ $event->lokasi }}"
-                    class="input input-bordered w-full
-                    @error('lokasi')
-                    border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500
-                    @enderror">
-                    @error('lokasi')
-                        <p class="mt-2 text-sm text-red-600 font-semibold flex items-center">
-                            <svg class="w-4 h-4 mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            {{ $message }}
-                        </p>
-                    @enderror
+                    <select 
+                    value="{{ $event->lokasi_id }}" 
+                    name="lokasi_id" class="select select-bordered w-full">
+                        @forelse($locations as $index => $lokasi)
+                        <option value="{{ $lokasi->id }}">
+                            {{ $lokasi->nama_lokasi }}
+                        </option>
+                        @empty
+                        @endforelse
+                    </select>
                 </div>
                 <div class="space-y-2">
                     <label class="block">
@@ -201,8 +196,9 @@
                     tickets: [],
                     prepend(index) {
                         if(this.tickets.length <= 1) return;
-                        index = index - 1;
+                        index = index;
                         this.tickets.splice(index, 1)
+                        console.log(this.tickets)
                     },
                     toggleOpen(el, index) {
                         if(this.tickets.length <= 1) {
@@ -224,8 +220,8 @@
                 @append_ticket.window="append()"
                 class="join join-vertical w-full" 
                 id="tickets-container">
-                    <template x-for="(ticket, index) in tickets">
-                        <details class="collapse join-item border border-base-300" name="my-accordion" name="tickets-accordion" :open="index == 0">
+                    <template x-for="(ticket, index) in tickets" :key="'accordion-'+index">
+                        <details class="collapse join-item border border-base-300" name="my-accordion" name="tickets-accordion" :open="index == 0" >
                             <summary 
                             class="collapse-title flex justify-between items-center px-4 text-base font-medium"
                             @click.prevent.stop="toggleOpen($el, index)">
@@ -257,7 +253,7 @@
                                         <input 
                                         type="number" 
                                         :name="'tikets['+index+'][harga]'" 
-                                        :value="ticket.harga" 
+                                        x-model="ticket.harga" 
                                         class="input input-bordered w-full rounded-s-none">
                                     </div>
                                     <div class="join-item border-0 w-4/12">
@@ -268,7 +264,7 @@
                                         <input 
                                         type="number" 
                                         :name="'tikets['+index+'][stok]'" 
-                                        :value="ticket.stok" 
+                                        x-model="ticket.stok" 
                                         class="input input-bordered w-full rounded-none border-x-none">
                                     </div>
                                     <div class="join-item border-0 w-4/12">
@@ -278,7 +274,7 @@
                                         </label>
                                         <select 
                                         :name="'tikets['+index+'][tipe]'"
-                                        :value="ticket.tipe"
+                                        x-model="ticket.tipe"
                                         class="select select-bordered w-full rounded-s-none" >
                                             <option value="reguler">
                                                 Reguler
@@ -300,6 +296,7 @@
         window.addEventListener('append_ticket', (e) => {
             console.log('Event caught on window! Detail data is:', e.detail);
         });
+       
         // const template = document.getElementById('ticket-accordion-template').innerHTML;
         // const container = document.getElementById('tickets-container');
 

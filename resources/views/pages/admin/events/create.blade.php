@@ -99,24 +99,19 @@
                 </div>
                 <div class="space-y-2">
                     <label class="block">
-                        <span class="text-sm font-medium">Lokasi</span>
+                        <span class="text-sm font-medium">Kategori</span>
                         <span class="text-error">*</span>
                     </label>
-                    <input 
-                    name="lokasi" 
-                    value="{{ old('lokasi') }}"
-                    class="input input-bordered w-full
-                    @error('lokasi')
-                    border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500
-                    @enderror">
-                    @error('lokasi')
-                        <p class="mt-2 text-sm text-red-600 font-semibold flex items-center">
-                            <svg class="w-4 h-4 mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            {{ $message }}
-                        </p>
-                    @enderror
+                    <select 
+                    value="{{ old('lokasi_id') }}" 
+                    name="lokasi_id" class="select select-bordered w-full">
+                        @forelse($locations as $index => $lokasi)
+                        <option value="{{ $lokasi->id }}">
+                            {{ $lokasi->nama_lokasi }}
+                        </option>
+                        @empty
+                        @endforelse
+                    </select>
                 </div>
                 <div class="space-y-2">
                     <label class="block">
